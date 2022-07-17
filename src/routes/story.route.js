@@ -6,7 +6,7 @@ const { createAuthorMiddleware, createStoryMiddleWare } = require('../middleware
 router.post('/author/create', [createAuthorMiddleware], storyController.createAuthor)
 router.get('/author', storyController.getAllAuthor)
 
-router.post('/create',[createStoryMiddleWare], storyController.createStory)
+router.post('/create', [createStoryMiddleWare], storyController.createStory)
 router.get('/all', storyController.getAllStory)
 
 storyRoutes.use('/api/story', router)
