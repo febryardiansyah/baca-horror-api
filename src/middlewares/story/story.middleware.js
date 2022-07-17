@@ -1,4 +1,4 @@
-const { StoryModel } = require("../../database/model/model")
+const { StoryModel, AuthorModel } = require("../../database/model/model")
 const { errorResponse } = require("../../utils/error_response")
 
 exports.createAuthorMiddleware = async (req, res, next) => {
@@ -29,18 +29,27 @@ exports.createStoryMiddleWare = async (req, res, next) => {
         })
     }
     try {
-        const isExist = await StoryModel.findOne({
+        // check author is exist
+        // if it false, it will return failure response
+        const authorExist = await AuthorModel.findByPk(author_id)
+        if (!authorExist) {
+            return res.status(400).send({
+                message: `Author tidak ditemukan, pastikan memasukan id benar`
+            })
+        }
+        // check story is exist
+        const storyExist = await StoryModel.findOne({
             where: {
                 url
             }
         })
-        if (isExist) {
+        if (storyExist) {
             return res.status(400).send({
-                message: `Cerita sudah dibuat dengan id: ${isExist.id}`
+                message: `Cerita sudah dibuat dengan id: ${storyExist.id}`
             })
         }
         next()
     } catch (error) {
-        errorResponse(res,error)
+        errorResponse(res, error)
     }
 }

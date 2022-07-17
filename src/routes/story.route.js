@@ -4,11 +4,11 @@ const storyController = require('../controller/story/story.controller')
 const { createAuthorMiddleware, createStoryMiddleWare } = require('../middlewares/story/story.middleware')
 
 router.post('/author/create', [createAuthorMiddleware], storyController.createAuthor)
-router.get('/author', storyController.getAllAuthor)
+router.get('/author/all', storyController.getAllAuthor)
 
-router.post('/create', [createStoryMiddleWare], storyController.createStory)
-router.get('/all', storyController.getAllStory)
+router.post('/story/create', [createStoryMiddleWare], storyController.createStory)
+router.get('/story/all', storyController.getAllStory)
 
-storyRoutes.use('/api/story', router)
+storyRoutes.use('/api', router)
 
 module.exports = storyRoutes

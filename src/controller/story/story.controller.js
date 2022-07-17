@@ -2,7 +2,11 @@ const { AuthorModel, StoryModel } = require("../../database/model/model");
 const { errorResponse } = require("../../utils/error_response")
 const cheerio = require('cheerio');
 const { default: axios } = require("axios");
+const { parseHTMLContent } = require("../../utils/string");
 
+/**
+ * AUTHOR
+ */
 exports.createAuthor = async (req, res) => {
     const { url } = req.body;
     try {
@@ -17,8 +21,8 @@ exports.createAuthor = async (req, res) => {
             }
         })
         if (authorExist) {
-            return res.send({
-                message: `Author sudah terdaftar dengan id: ${authorExist.id}`
+            return res.status(400).send({
+                message: `Author sudah terdaftar dengan id: ${authorExist.id}, nama: ${authorExist.name}`
             })
         }
 
@@ -39,9 +43,7 @@ exports.createAuthor = async (req, res) => {
 
 exports.getAllAuthor = async (req, res) => {
     try {
-        const authors = await AuthorModel.findAll({
-            include: ['stories']
-        })
+        const authors = await AuthorModel.findAll()
         return res.send({
             message: 'Get semua author berhasil',
             authors
@@ -51,19 +53,22 @@ exports.getAllAuthor = async (req, res) => {
     }
 }
 
+/**
+ * STORY
+ */
 exports.createStory = async (req, res) => {
     const { title, url, author_id } = req.body;
     try {
         const response = await axios.get(url)
         const $ = cheerio.load(response.data)
         const img = $("#tweet_1 > span > a > img").attr('data-src');
-        const synopsis = $('#tweet_1').html().trim();
+        const synopsis = parseHTMLContent($('#tweet_1').text().trim().split('#')[0])
         const source = $('body > div.container.narrow.pb-5 > div > div > div.mb-2.d-flex.align-items-center > div.flex-grow-1 > div > div.d-flex.align-items-center.justify-content-between > div.web-intent > span > a:nth-child(4)').attr('href');
         let contents = []
         $('.content-tweet').each((i, el) => {
             if (i !== 0) {
                 contents.push(
-                    $(el).html().trim()
+                    parseHTMLContent($(el).text().trim())
                 )
             }
         })
