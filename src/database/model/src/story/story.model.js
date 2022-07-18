@@ -28,7 +28,19 @@ const StoryModel = db.define('story',{
     }
 },{
     createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    updatedAt: 'updated_at',
+    defaultScope:{
+        attributes: {
+            exclude: ['contents']
+        }
+    },
+    scopes: {
+        with_contents: {
+            attributes:{
+                include: ['contents']
+            }
+        }
+    }
 })
 
 module.exports = StoryModel;
