@@ -1,10 +1,10 @@
-const { AuthorModel, StoryModel } = require("../../database/model/model");
+const { AuthorModel, StoryModel, UserModel } = require("../../database/model/model");
 const { errorResponse } = require("../../utils/error_response")
 const cheerio = require('cheerio');
 const { default: axios } = require("axios");
 const { parseHTMLContent } = require("../../utils/string");
-const { offsetPagination, getPaginationData } = require("../../utils/utils");
-const { Op } = require('sequelize')
+const { offsetPagination, getPaginationData,} = require("../../utils/utils");
+const { Op } = require('sequelize');
 
 /**
  * AUTHOR
@@ -119,9 +119,26 @@ exports.getAllStory = async (req, res) => {
 exports.getStoryById = async (req, res) => {
     const { id } = req.params;
     try {
-        const story = await StoryModel.scope('with_contents').findByPk(id, {
-            include: ['author']
+        let story = await StoryModel.scope('with_contents').findByPk(id, {
+            include: [
+                {
+                    model: AuthorModel,
+                    as: 'author',
+                },
+                {
+                    model: UserModel,
+                    as: 'users_like',
+                    attributes: ['id'],
+                    through: {
+                        attributes: []
+                    }
+                }
+            ],
         })
+        const total_likes = story.users_like.length;
+        story = story.toJSON()
+        story.total_likes = total_likes
+        delete story.users_like
         return res.send({
             message: 'Get Story by id',
             story,

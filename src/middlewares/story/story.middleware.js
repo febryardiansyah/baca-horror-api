@@ -1,5 +1,7 @@
-const { StoryModel, AuthorModel } = require("../../database/model/model")
+const { StoryModel, AuthorModel, UserModel } = require("../../database/model/model")
 const { errorResponse } = require("../../utils/error_response")
+const jwt = require('jsonwebtoken')
+const config = require("../../config/config")
 
 exports.createAuthorMiddleware = async (req, res, next) => {
     const { url } = req.body
@@ -48,6 +50,29 @@ exports.createStoryMiddleWare = async (req, res, next) => {
                 message: `Cerita sudah dibuat dengan id: ${storyExist.id}`
             })
         }
+        next()
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}
+
+exports.requireToken = async (req, res,next) => {
+    const { authorization } = req.headers;
+    if (!authorization) {
+        return res.status(401).send({
+            message: 'Kamu harus login terlebih dahulu'
+        })
+    }
+    const token = authorization.split('Bearer ')[1]
+    try {
+        const id = jwt.verify(token, config.SERVER.secret)
+        const user = await UserModel.findOne(id)
+        if (!user) {
+            return res.status(401).send({
+                message: 'Kamu harus login terlebih dahulu'
+            })
+        }
+        req.userId = user.id
         next()
     } catch (error) {
         errorResponse(res, error)

@@ -29,6 +29,9 @@ const StoryModel = db.define('story',{
 },{
     createdAt: 'created_at',
     updatedAt: 'updated_at',
+    // deletedAt: 'deleted_at',
+    // timestamps: true,
+    // paranoid: true,
     defaultScope:{
         attributes: {
             exclude: ['contents']

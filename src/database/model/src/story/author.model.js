@@ -17,7 +17,10 @@ const AuthorModel = db.define('author',{
 
 },{
     createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    updatedAt: 'updated_at',
+    // deletedAt: 'deleted_at',
+    // timestamps: true,
+    // paranoid: true,
 })
 
 module.exports = AuthorModel

@@ -39,7 +39,7 @@ exports.login = async (req, res) => {
             raw: true,
         })
         if (!user) {
-            return res.send.status(404).send({
+            return res.status(404).send({
                 message: 'Email belum terdaftar'
             })
         }
