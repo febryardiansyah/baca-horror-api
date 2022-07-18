@@ -3,7 +3,8 @@ const { errorResponse } = require("../../utils/error_response")
 const cheerio = require('cheerio');
 const { default: axios } = require("axios");
 const { parseHTMLContent } = require("../../utils/string");
-const { offsetPagination: getPagination, offsetPagination, getPaginationData: pagination, getPaginationData } = require("../../utils/utils");
+const { offsetPagination, getPaginationData } = require("../../utils/utils");
+const { Op } = require('sequelize')
 
 /**
  * AUTHOR
@@ -87,18 +88,24 @@ exports.createStory = async (req, res) => {
 }
 
 exports.getAllStory = async (req, res) => {
-    const { page, limit } = req.query
+    const { page, limit, title } = req.query
 
+    let where = {}
+
+    if (title) {
+        where.title = {
+            [Op.like]: `%${title}%`
+        }
+    }
     try {
         const getOffset = offsetPagination(page, limit)
         let stories = await StoryModel.findAndCountAll({
             include: ['author'],
             limit: getOffset.limit,
             offset: getOffset.offset,
+            where
         })
-        console.log(`COUNT ${stories.count}`);
-        console.log(`ROWS ${stories.rows}`);
-        stories = getPaginationData(stories,page,limit)
+        stories = getPaginationData(stories, page, limit)
 
         return res.send({
             message: 'Get semua cerita berhasil',
