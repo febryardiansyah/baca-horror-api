@@ -3,6 +3,7 @@ const { errorResponse } = require("../../utils/error_response")
 const cheerio = require('cheerio');
 const { default: axios } = require("axios");
 const { parseHTMLContent } = require("../../utils/string");
+const { offsetPagination: getPagination, offsetPagination } = require("../../utils/utils");
 
 /**
  * AUTHOR
@@ -85,16 +86,36 @@ exports.createStory = async (req, res) => {
     }
 }
 
-exports.getAllStory = async(req,res) =>{
+exports.getAllStory = async (req, res) => {
+    const { page, limit } = req.query
+
     try {
+        const getPagination = offsetPagination(page, limit)
         const stories = await StoryModel.findAll({
-            include: ['author']
+            include: ['author'],
+            limit: 3,
+            offset: 0,
         })
         return res.send({
             message: 'Get semua cerita berhasil',
             stories,
         })
     } catch (error) {
-        errorResponse(res,error)
+        errorResponse(res, error)
+    }
+}
+
+exports.getStoryById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const story = await StoryModel.scope('with_contents').findByPk(id, {
+            include: ['author']
+        })
+        return res.send({
+            message: 'Get Story by id',
+            story,
+        })
+    } catch (error) {
+        errorResponse(res, error)
     }
 }

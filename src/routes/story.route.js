@@ -8,6 +8,7 @@ router.get('/author/all', storyController.getAllAuthor)
 
 router.post('/story/create', [createStoryMiddleWare], storyController.createStory)
 router.get('/story/all', storyController.getAllStory)
+router.get('/story/:id', storyController.getStoryById)
 
 storyRoutes.use('/api', router)
 
