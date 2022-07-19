@@ -9,10 +9,12 @@ router.get('/author/all', storyController.getAllAuthor)
 
 router.post('/story/create', [createStoryMiddleWare], storyController.createStory)
 router.get('/story/all', storyController.getAllStory)
-router.get('/story/:id', storyController.getStoryById)
+router.get('/story/:id', [requireToken], storyController.getStoryById)
+router.get('/story/most-liked/all', storyController.getMostLikedStory)
 
 router.post('/story/like', [requireToken], likeController.likeStory)
 router.post('/story/unlike', [requireToken], likeController.unlikeStory)
+router.get('/story/me/liked', [requireToken], likeController.getMyLikedStory)
 
 storyRoutes.use('/api', router)
 

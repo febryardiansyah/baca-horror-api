@@ -19,12 +19,11 @@ exports.likeStory = async (req, res) => {
         })
         if (likeExist) {
             return res.status(400).send({
-                message: 'Cerita sudah di Like'
+                message: 'Cerita sudah di Like',
+                userId: req.userId,
+                likeExist
             })
         }
-        // const user = await UserModel.findByPk(req.userId)
-        // const story = await StoryModel.findByPk(storyId)
-        // await user.addStory(story, { through: LikeModel })
         await LikeModel.create({ userId: req.userId, storyId: storyId })
         return res.send({
             message: `Berhasil like cerita`
@@ -56,6 +55,30 @@ exports.unlikeStory = async (req, res) => {
         await isLiked.destroy()
         return res.send({
             message: 'Cerita berhasil di Unlike'
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}
+
+exports.getMyLikedStory = async (req, res) => {
+    try {
+        let user = await UserModel.findByPk(req.userId, {
+            include: [
+                {
+                    model: StoryModel,
+                    as: 'stories_like',
+                    through: {
+                        attributes: []
+                    },
+                }
+            ]
+        })
+        user = user.toJSON()
+        const { stories_like } = user;
+        return res.send({
+            message: 'Get semua cerita yang disukai berhasil',
+            stories_like,
         })
     } catch (error) {
         errorResponse(res, error)

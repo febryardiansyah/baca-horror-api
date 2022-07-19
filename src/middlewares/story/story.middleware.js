@@ -56,7 +56,7 @@ exports.createStoryMiddleWare = async (req, res, next) => {
     }
 }
 
-exports.requireToken = async (req, res,next) => {
+exports.requireToken = async (req, res, next) => {
     const { authorization } = req.headers;
     if (!authorization) {
         return res.status(401).send({
@@ -65,8 +65,8 @@ exports.requireToken = async (req, res,next) => {
     }
     const token = authorization.split('Bearer ')[1]
     try {
-        const id = jwt.verify(token, config.SERVER.secret)
-        const user = await UserModel.findOne(id)
+        const parseToken = jwt.verify(token, config.SERVER.secret)
+        const user = await UserModel.findByPk(parseToken.id)
         if (!user) {
             return res.status(401).send({
                 message: 'Kamu harus login terlebih dahulu'

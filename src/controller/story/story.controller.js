@@ -3,8 +3,9 @@ const { errorResponse } = require("../../utils/error_response")
 const cheerio = require('cheerio');
 const { default: axios } = require("axios");
 const { parseHTMLContent } = require("../../utils/string");
-const { offsetPagination, getPaginationData,} = require("../../utils/utils");
+const { offsetPagination, getPaginationData, } = require("../../utils/utils");
 const { Op } = require('sequelize');
+const sequelize = require("sequelize");
 
 /**
  * AUTHOR
@@ -103,7 +104,10 @@ exports.getAllStory = async (req, res) => {
             include: ['author'],
             limit: getOffset.limit,
             offset: getOffset.offset,
-            where
+            where,
+            order: [
+                ['created_at', 'DESC']
+            ]
         })
         stories = getPaginationData(stories, page, limit)
 
@@ -131,7 +135,11 @@ exports.getStoryById = async (req, res) => {
                     attributes: ['id'],
                     through: {
                         attributes: []
-                    }
+                    },
+                    // where: {
+                    //     id: req.userId
+                    // },
+                    // required: false
                 }
             ],
         })
@@ -142,6 +150,40 @@ exports.getStoryById = async (req, res) => {
         return res.send({
             message: 'Get Story by id',
             story,
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}
+
+exports.getMostLikedStory = async (req, res) => {
+    try {
+        const stories = await StoryModel.findAll({
+            limit: 10,
+            include: [
+                {
+                    model: UserModel,
+                    as: 'users_like',
+                    attributes: []
+                },
+                {
+                    model: AuthorModel,
+                    as: 'author'
+                }
+            ],
+            attributes: {
+                include: [
+                    [sequelize.literal('(select count(*) from likes as ul where ul.storyId = Story.id)'), 'total_likes']
+                ]
+            },
+            order: [
+                [sequelize.literal('total_likes'), 'DESC'],
+            ]
+        })
+
+        return res.send({
+            message: 'Get cerita yang paling disukai',
+            stories
         })
     } catch (error) {
         errorResponse(res, error)
