@@ -160,37 +160,3 @@ exports.getStoryById = async (req, res) => {
         errorResponse(res, error)
     }
 }
-
-exports.getMostLikedStory = async (req, res) => {
-    try {
-        const stories = await StoryModel.findAll({
-            limit: 10,
-            include: [
-                {
-                    model: UserModel,
-                    as: 'users_like',
-                    attributes: []
-                },
-                {
-                    model: AuthorModel,
-                    as: 'author'
-                }
-            ],
-            attributes: {
-                include: [
-                    [sequelize.literal('(select count(*) from likes as ul where ul.storyId = Story.id)'), 'total_likes']
-                ]
-            },
-            order: [
-                [sequelize.literal('total_likes'), 'DESC'],
-            ]
-        })
-
-        return res.send({
-            message: 'Get cerita yang paling disukai',
-            stories
-        })
-    } catch (error) {
-        errorResponse(res, error)
-    }
-}

@@ -1,6 +1,7 @@
 const { UserModel, StoryModel, AuthorModel } = require("../../database/model/model");
 const LikeModel = require("../../database/model/src/story/like.model");
 const { errorResponse } = require("../../utils/error_response");
+const sequelize = require('sequelize')
 
 exports.likeStory = async (req, res) => {
     const { storyId } = req.body;
@@ -82,6 +83,40 @@ exports.getMyLikedStory = async (req, res) => {
         return res.send({
             message: 'Get semua cerita yang disukai berhasil',
             stories_like,
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}
+
+exports.getMostLikedStory = async (req, res) => {
+    try {
+        const stories = await StoryModel.findAll({
+            limit: 10,
+            include: [
+                {
+                    model: UserModel,
+                    as: 'users_like',
+                    attributes: []
+                },
+                {
+                    model: AuthorModel,
+                    as: 'author'
+                }
+            ],
+            attributes: {
+                include: [
+                    [sequelize.literal('(select count(*) from likes as ul where ul.storyId = Story.id)'), 'total_likes']
+                ]
+            },
+            order: [
+                [sequelize.literal('total_likes'), 'DESC'],
+            ]
+        })
+
+        return res.send({
+            message: 'Get cerita yang paling disukai',
+            stories
         })
     } catch (error) {
         errorResponse(res, error)
