@@ -1,4 +1,4 @@
-const { UserModel, StoryModel } = require("../../database/model/model");
+const { UserModel, StoryModel, AuthorModel } = require("../../database/model/model");
 const LikeModel = require("../../database/model/src/story/like.model");
 const { errorResponse } = require("../../utils/error_response");
 
@@ -71,7 +71,10 @@ exports.getMyLikedStory = async (req, res) => {
                     through: {
                         attributes: []
                     },
-                }
+                    include: [
+                        'author'
+                    ]
+                },
             ]
         })
         user = user.toJSON()

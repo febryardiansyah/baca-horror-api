@@ -136,17 +136,22 @@ exports.getStoryById = async (req, res) => {
                     through: {
                         attributes: []
                     },
-                    // where: {
-                    //     id: req.userId
-                    // },
-                    // required: false
+                    where: {
+                        id: req.userId
+                    },
+                    required: false,
                 }
             ],
+            attributes: {
+                include: [
+                    [sequelize.literal('(select count(*) from likes as ul where ul.storyId = Story.id)'), 'total_likes'],
+                ]
+            },
         })
-        const total_likes = story.users_like.length;
-        story = story.toJSON()
-        story.total_likes = total_likes
-        delete story.users_like
+        // story = story.toJSON()
+        // story.isLiked = story.users_like.length > 0
+        // story.total_likes = total_likes
+        // delete story.users_like
         return res.send({
             message: 'Get Story by id',
             story,
