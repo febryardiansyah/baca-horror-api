@@ -81,3 +81,27 @@ exports.getMyProfile = async (req, res) => {
         errorResponse(res, error)
     }
 }
+
+exports.updateProfile = async (req, res) => {
+    const { name } = req.body
+    if (!name) {
+        return res.status(400).send({
+            message: 'Nama tidak boleh kosong'
+        })
+    }
+    try {
+        await UserModel.update({
+            name
+        },{
+            where: {
+                id: req.userId
+            }
+        })
+
+        return res.send({
+            message: 'Update profile berhasil',
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}

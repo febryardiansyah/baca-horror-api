@@ -8,6 +8,7 @@ router.post('/register', userController.createUser)
 router.post('/login', [loginFormMiddleWare], userController.login)
 
 router.get('/me', [requireToken], userController.getMyProfile)
+router.put('/me/edit', [requireToken], userController.updateProfile)
 
 userRoutes.use('/api/user', router)
 
