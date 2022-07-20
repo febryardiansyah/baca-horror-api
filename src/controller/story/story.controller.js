@@ -120,7 +120,7 @@ exports.getAllStory = async (req, res) => {
     }
 }
 
-// TODO: added total_likes, total_views
+// TODO: added total_views
 exports.getStoryById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -130,18 +130,6 @@ exports.getStoryById = async (req, res) => {
                     model: AuthorModel,
                     as: 'author',
                 },
-                // {
-                //     model: UserModel,
-                //     as: 'users_like',
-                //     attributes: ['id'],
-                //     through: {
-                //         attributes: []
-                //     },
-                //     where: {
-                //         id: req.userId
-                //     },
-                //     required: false,
-                // }
             ],
             attributes: {
                 include: [
@@ -149,13 +137,46 @@ exports.getStoryById = async (req, res) => {
                 ]
             },
         })
-        // story = story.toJSON()
-        // story.isLiked = story.users_like.length > 0
-        // story.total_likes = total_likes
-        // delete story.users_like
         return res.send({
             message: 'Get Story by id',
             story,
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}
+
+exports.getStoryContents = async (req, res) => {
+    const { id } = req.params
+    try {
+        let story = await StoryModel.scope('with_contents').findByPk(id, {
+            include: [
+                'author',
+                {
+                    model: UserModel,
+                    as: 'users_like',
+                    attributes: ['id'],
+                    through: {
+                        attributes: []
+                    },
+                    where: {
+                        id: req.userId
+                    },
+                    required: false,
+                },
+            ],
+            attributes: {
+                include: [
+                    [sequelize.literal('(select count(*) from likes as ul where ul.storyId = Story.id)'), 'total_likes'],
+                ]
+            },
+        })
+        story = story.toJSON()
+        story.isLiked = story.users_like.length > 0
+        delete story.users_like
+        return res.send({
+            message: 'Get konten cerita berhasil',
+            story
         })
     } catch (error) {
         errorResponse(res, error)
