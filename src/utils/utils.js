@@ -12,3 +12,5 @@ exports.getPaginationData = (data, current_page = 1, limit = 10) => {
 
     return { current_page, total_pages, total_items, stories }
 }
+
+exports.parseJSON = (val) => JSON.parse(JSON.stringify(val))

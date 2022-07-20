@@ -1,5 +1,8 @@
+const sequelize = require("sequelize")
+const { StoryModel, UserModel } = require("../../database/model/model")
 const FavoriteModel = require("../../database/model/src/story/favorite.model")
 const { errorResponse } = require("../../utils/error_response")
+const { parseJSON } = require("../../utils/utils")
 
 exports.favoriteStory = async (req, res) => {
     const { storyId } = req.body
@@ -44,6 +47,32 @@ exports.removeFavorite = async (req, res) => {
         await isFavorite.destroy()
         return res.send({
             message: 'Cerita berhasil dihapus dari favorite',
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}
+
+exports.getMostFavorite = async (req, res) => {
+    try {
+        let stories = await StoryModel.findAll({
+            limit: 10,
+            include: [
+                'author',
+            ],
+            attributes: {
+                include: [
+                    [sequelize.literal('(select count(*) from favorites as fav where fav.storyId = Story.id)'), 'total_favorites'],
+                ]
+            },
+            order: [
+                [sequelize.literal('total_favorites'), 'DESC'],
+            ]
+        })
+
+        return res.send({
+            message: 'Get cerita yang paling favorite',
+            stories
         })
     } catch (error) {
         errorResponse(res, error)
