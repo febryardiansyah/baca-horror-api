@@ -3,6 +3,7 @@ const { errorResponse } = require("../../utils/error_response");
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const config = require("../../config/config");
+const sequelize = require("sequelize");
 
 exports.createUser = async (req, res) => {
     const { name, email, password, role, } = req.body;
@@ -39,7 +40,7 @@ exports.login = async (req, res) => {
             raw: true,
         })
         if (!user) {
-            return res.send.status(404).send({
+            return res.status(404).send({
                 message: 'Email belum terdaftar'
             })
         }
@@ -58,6 +59,49 @@ exports.login = async (req, res) => {
         })
     } catch (error) {
         console.log(error);
-        errorResponse(res,error)
+        errorResponse(res, error)
+    }
+}
+
+exports.getMyProfile = async (req, res) => {
+    try {
+        const user = await UserModel.findByPk(req.userId, {
+            attributes: {
+                include: [
+                    [sequelize.literal('(select count(*) from likes as ul where ul.userId = User.id)'), 'stories_liked']
+                ]
+            },
+        })
+
+        return res.send({
+            message: 'Get my profile berhasil',
+            user
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}
+
+exports.updateProfile = async (req, res) => {
+    const { name } = req.body
+    if (!name) {
+        return res.status(400).send({
+            message: 'Nama tidak boleh kosong'
+        })
+    }
+    try {
+        await UserModel.update({
+            name
+        },{
+            where: {
+                id: req.userId
+            }
+        })
+
+        return res.send({
+            message: 'Update profile berhasil',
+        })
+    } catch (error) {
+        errorResponse(res, error)
     }
 }
