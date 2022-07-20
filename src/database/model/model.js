@@ -26,4 +26,5 @@ module.exports = {
     UserModel,
     AuthorModel,
     StoryModel,
+    FavoriteModel,
 }
