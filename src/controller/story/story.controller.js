@@ -120,27 +120,28 @@ exports.getAllStory = async (req, res) => {
     }
 }
 
+// TODO: added total_likes, total_views
 exports.getStoryById = async (req, res) => {
     const { id } = req.params;
     try {
-        let story = await StoryModel.scope('with_contents').findByPk(id, {
+        let story = await StoryModel.findByPk(id, {
             include: [
                 {
                     model: AuthorModel,
                     as: 'author',
                 },
-                {
-                    model: UserModel,
-                    as: 'users_like',
-                    attributes: ['id'],
-                    through: {
-                        attributes: []
-                    },
-                    where: {
-                        id: req.userId
-                    },
-                    required: false,
-                }
+                // {
+                //     model: UserModel,
+                //     as: 'users_like',
+                //     attributes: ['id'],
+                //     through: {
+                //         attributes: []
+                //     },
+                //     where: {
+                //         id: req.userId
+                //     },
+                //     required: false,
+                // }
             ],
             attributes: {
                 include: [
