@@ -78,3 +78,30 @@ exports.getMostFavorite = async (req, res) => {
         errorResponse(res, error)
     }
 }
+
+exports.getMyFavorite = async (req, res) => {
+    try {
+        let user = await UserModel.findByPk(req.userId, {
+            include: [
+                {
+                    model: StoryModel,
+                    as: 'stories_favorite',
+                    through: {
+                        attributes: []
+                    },
+                    include: [
+                        'author'
+                    ]
+                },
+            ]
+        })
+        user = user.toJSON()
+        const { stories_favorite } = user;
+        return res.send({
+            message: 'Get semua cerita favorite berhasil',
+            stories_favorite,
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}

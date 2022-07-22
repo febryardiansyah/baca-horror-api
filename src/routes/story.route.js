@@ -25,6 +25,7 @@ router.get('/story/most-liked/all', likeController.getMostLikedStory)
 router.post('/story/favorite', [requireToken], favoriteController.favoriteStory)
 router.post('/story/favorite/remove', [requireToken], favoriteController.removeFavorite)
 router.get('/story/most-favorite/all',favoriteController.getMostFavorite)
+router.get('/story/me/favorite',[requireToken],favoriteController.getMyFavorite)
 
 storyRoutes.use('/api', router)
 
