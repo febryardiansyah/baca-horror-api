@@ -3,6 +3,7 @@ const storyRoutes = require('express').Router()
 const storyController = require('../controller/story/story.controller')
 const likeController = require('../controller/story/like.controller')
 const favoriteController = require('../controller/story/favorite.controller')
+const commentController = require('../controller/story/comment.controller')
 const { createAuthorMiddleware, createStoryMiddleWare, requireToken } = require('../middlewares/story/story.middleware')
 
 // author
@@ -24,8 +25,12 @@ router.get('/story/most-liked/all', likeController.getMostLikedStory)
 //favorite
 router.post('/story/favorite', [requireToken], favoriteController.favoriteStory)
 router.post('/story/favorite/remove', [requireToken], favoriteController.removeFavorite)
-router.get('/story/most-favorite/all',favoriteController.getMostFavorite)
-router.get('/story/me/favorite',[requireToken],favoriteController.getMyFavorite)
+router.get('/story/most-favorite/all', favoriteController.getMostFavorite)
+router.get('/story/me/favorite', [requireToken], favoriteController.getMyFavorite)
+
+//comment
+router.post('/story/comment', [requireToken], commentController.postComment)
+router.get('/story/:id/comment/all', [requireToken], commentController.getCommentStoryId)
 
 storyRoutes.use('/api', router)
 

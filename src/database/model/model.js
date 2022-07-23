@@ -1,4 +1,5 @@
 const AuthorModel = require("./src/story/author.model");
+const CommentModel = require("./src/story/comment.model");
 const FavoriteModel = require("./src/story/favorite.model");
 const LikeModel = require("./src/story/like.model");
 const StoryModel = require("./src/story/story.model");
@@ -15,16 +16,30 @@ AuthorModel.hasMany(StoryModel, { as: 'stories', foreignKey: 'author_id' })
 StoryModel.belongsTo(AuthorModel, { as: 'author', foreignKey: 'author_id' })
 StoryModel.belongsToMany(UserModel, { as: 'users_like', through: LikeModel })
 StoryModel.belongsToMany(UserModel, { as: 'users_favorite', through: FavoriteModel })
+StoryModel.belongsToMany(UserModel, {
+    as: 'users_comment', through: {
+        model: CommentModel, unique: false,
+    }, foreignKey: 'storyId'
+})
 
 /**
  * USER
  */
 UserModel.belongsToMany(StoryModel, { as: 'stories_like', through: LikeModel })
 UserModel.belongsToMany(StoryModel, { as: 'stories_favorite', through: FavoriteModel })
+UserModel.belongsToMany(StoryModel, {
+    as: 'stories_comment', through: {
+        model: CommentModel, unique: false,
+    }, foreignKey: 'userId'
+})
+
+CommentModel.belongsTo(StoryModel, { as: 'story' })
+CommentModel.belongsTo(UserModel, { as: 'user' })
 
 module.exports = {
     UserModel,
     AuthorModel,
     StoryModel,
     FavoriteModel,
+    CommentModel,
 }
