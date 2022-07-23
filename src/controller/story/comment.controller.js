@@ -1,4 +1,4 @@
-const { CommentModel, UserModel, StoryModel } = require("../../database/model/model")
+const { CommentModel, UserModel, StoryModel, ReportedComment } = require("../../database/model/model")
 const { errorResponse } = require("../../utils/error_response")
 const { offsetPagination, getPaginationData } = require("../../utils/utils")
 
@@ -77,5 +77,43 @@ exports.deleteComment = async (req, res) => {
         })
     } catch (error) {
         errorResponse(res, error)
+    }
+}
+
+exports.reportComment = async (req, res) => {
+    const { commentId, message } = req.body
+    try {
+        await ReportedComment.create({
+            commentId,message
+        })
+        return res.send({
+            message: 'Komentar berhasil dilaporkan!'
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}
+
+exports.getAllReportedComments = async(req,res) => {
+    try {
+        const reports = await ReportedComment.findAll({
+            include: [
+                {
+                    model: CommentModel,
+                    as: 'comment',
+                    include: ['user']
+                }
+            ],
+            order: [
+                ['created_at','DESC']
+            ]
+        })
+
+        return res.send({
+            message: 'Get all reported comments success',
+            reports
+        })
+    } catch (error) {
+        errorResponse(res,error)
     }
 }

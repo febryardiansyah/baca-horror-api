@@ -2,6 +2,7 @@ const AuthorModel = require("./src/story/author.model");
 const CommentModel = require("./src/story/comment.model");
 const FavoriteModel = require("./src/story/favorite.model");
 const LikeModel = require("./src/story/like.model");
+const ReportedComment = require("./src/story/reportedComment.model");
 const StoryModel = require("./src/story/story.model");
 const UserModel = require("./src/user/user.model");
 
@@ -35,6 +36,9 @@ UserModel.belongsToMany(StoryModel, {
 
 CommentModel.belongsTo(StoryModel, { as: 'story' })
 CommentModel.belongsTo(UserModel, { as: 'user' })
+CommentModel.hasMany(ReportedComment, { as: 'reports' })
+
+ReportedComment.belongsTo(CommentModel, { as: 'comment' })
 
 module.exports = {
     UserModel,
@@ -42,4 +46,5 @@ module.exports = {
     StoryModel,
     FavoriteModel,
     CommentModel,
+    ReportedComment
 }
