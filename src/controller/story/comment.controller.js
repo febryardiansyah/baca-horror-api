@@ -1,6 +1,6 @@
 const { CommentModel, UserModel, StoryModel } = require("../../database/model/model")
 const { errorResponse } = require("../../utils/error_response")
-const { offsetPagination } = require("../../utils/utils")
+const { offsetPagination, getPaginationData } = require("../../utils/utils")
 
 exports.postComment = async (req, res) => {
     const { message, storyId } = req.body
@@ -27,10 +27,10 @@ exports.getCommentStoryId = async (req, res) => {
     const { id } = req.params
     const { page, limit } = req.query
     try {
-        const offset = offsetPagination(page, limit)
-        const data = await CommentModel.findAll({
-            offset: offset.offset,
-            limit: offset.limit,
+        const getOffset = offsetPagination(page, limit)
+        const commentList = await CommentModel.findAndCountAll({
+            offset: getOffset.offset,
+            limit: getOffset.limit,
             where: {
                 storyId: id
             },
@@ -44,14 +44,20 @@ exports.getCommentStoryId = async (req, res) => {
                 ['created_at', 'DESC']
             ]
         })
+        const paginationData = getPaginationData(commentList, page, limit)
         let comments = []
-        data.forEach(item => {
+        paginationData.list.forEach(item => {
             const isMy = item.toJSON().user.id === req.userId;
             comments.push({ ...item.toJSON(), isMy })
         })
+        delete paginationData.list
+        const data = {
+            ...paginationData,
+            comments,
+        }
         return res.send({
             message: 'Get comments by story id',
-            arr: comments,
+            data,
         })
     } catch (error) {
         errorResponse(res, error)
