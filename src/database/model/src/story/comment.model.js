@@ -12,19 +12,11 @@ const CommentModel = db.define('comment', {
         type: DataTypes.BIGINT,
         primaryKey: false,
         unique: false,
-        // references: {
-        //     model: 'user',
-        //     key: 'user_id'
-        // }
     },
     storyId: {
         type: DataTypes.BIGINT,
         primaryKey: false,
         unique: false,
-        // references: {
-        //     model: 'story',
-        //     key: 'story_id'
-        // }
     },
     message: {
         type: DataTypes.STRING,
