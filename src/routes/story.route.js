@@ -31,6 +31,7 @@ router.get('/story/me/favorite', [requireToken], favoriteController.getMyFavorit
 //comment
 router.post('/story/comment', [requireToken], commentController.postComment)
 router.get('/story/:id/comment/all', [requireToken], commentController.getCommentStoryId)
+router.delete('/story/comment/delete', [requireToken], commentController.deleteComment)
 
 storyRoutes.use('/api', router)
 

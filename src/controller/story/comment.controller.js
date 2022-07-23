@@ -57,3 +57,19 @@ exports.getCommentStoryId = async (req, res) => {
         errorResponse(res, error)
     }
 }
+
+exports.deleteComment = async (req, res) => {
+    const { commentId } = req.body
+    try {
+        await CommentModel.destroy({
+            where: {
+                id: commentId
+            }
+        })
+        return res.send({
+            message: 'Komentar berhasil dihapus!'
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}
