@@ -6,6 +6,8 @@ const { parseHTMLContent } = require("../../utils/string");
 const { offsetPagination, getPaginationData, } = require("../../utils/utils");
 const { Op } = require('sequelize');
 const sequelize = require("sequelize");
+const jwt = require('jsonwebtoken');
+const config = require("../../config/config");
 
 /**
  * AUTHOR
@@ -120,9 +122,27 @@ exports.getAllStory = async (req, res) => {
     }
 }
 
-// TODO: added total_likes, total_views
+// TODO: added total_views
 exports.getStoryById = async (req, res) => {
     const { id } = req.params;
+    const { authorization } = req.headers;
+
+    let userFavoriteWhere;
+    // check if authorization not null
+    if (!authorization) {
+        userFavoriteWhere = null;
+    } else {
+        const token = authorization.split('Bearer ')[1]
+        const parseToken = jwt.verify(token, config.SERVER.secret)
+        const user = await UserModel.findByPk(parseToken.id)
+        if (!user) {
+            userFavoriteWhere = null;
+        }
+        /// return user.id
+        userFavoriteWhere = {
+            id: user.id
+        }
+    }
     try {
         let story = await StoryModel.findByPk(id, {
             include: [
@@ -130,18 +150,16 @@ exports.getStoryById = async (req, res) => {
                     model: AuthorModel,
                     as: 'author',
                 },
-                // {
-                //     model: UserModel,
-                //     as: 'users_like',
-                //     attributes: ['id'],
-                //     through: {
-                //         attributes: []
-                //     },
-                //     where: {
-                //         id: req.userId
-                //     },
-                //     required: false,
-                // }
+                {
+                    model: UserModel,
+                    as: 'users_favorite',
+                    attributes: ['id'],
+                    through: {
+                        attributes: []
+                    },
+                    where: userFavoriteWhere,
+                    required: false
+                }
             ],
             attributes: {
                 include: [
@@ -149,13 +167,50 @@ exports.getStoryById = async (req, res) => {
                 ]
             },
         })
-        // story = story.toJSON()
-        // story.isLiked = story.users_like.length > 0
-        // story.total_likes = total_likes
-        // delete story.users_like
+        story = story.toJSON()
+        story.isFavorite = userFavoriteWhere !== null && story.users_favorite.length > 0
+
+        delete story.users_favorite
         return res.send({
             message: 'Get Story by id',
             story,
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}
+
+exports.getStoryContents = async (req, res) => {
+    const { id } = req.params
+    try {
+        let story = await StoryModel.scope('with_contents').findByPk(id, {
+            include: [
+                'author',
+                {
+                    model: UserModel,
+                    as: 'users_like',
+                    attributes: ['id'],
+                    through: {
+                        attributes: []
+                    },
+                    where: {
+                        id: req.userId
+                    },
+                    required: false,
+                },
+            ],
+            attributes: {
+                include: [
+                    [sequelize.literal('(select count(*) from likes as ul where ul.storyId = Story.id)'), 'total_likes'],
+                ]
+            },
+        })
+        story = story.toJSON()
+        story.isLiked = story.users_like.length > 0
+        delete story.users_like
+        return res.send({
+            message: 'Get konten cerita berhasil',
+            story
         })
     } catch (error) {
         errorResponse(res, error)
