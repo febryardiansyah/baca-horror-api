@@ -15,6 +15,7 @@ router.post('/story/create', [createStoryMiddleWare], storyController.createStor
 router.get('/story/all', storyController.getAllStory)
 router.get('/story/:id', storyController.getStoryById)
 router.get('/story/contents/:id', [requireToken], storyController.getStoryContents)
+router.delete('/story/delete/:id', [requireToken], storyController.deleteStoryById)
 
 // like
 router.post('/story/like', [requireToken], likeController.likeStory)

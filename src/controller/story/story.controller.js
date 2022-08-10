@@ -228,3 +228,16 @@ exports.getStoryContents = async (req, res) => {
         errorResponse(res, error)
     }
 }
+
+exports.deleteStoryById = async (req, res) => {
+    const { id } = req.params
+    try {
+        await StoryModel.destroy({ where: { id } })
+
+        return res.send({
+            message: `Story dengan id:${id} berhasil dihapus`
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}
