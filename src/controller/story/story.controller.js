@@ -48,7 +48,19 @@ exports.createAuthor = async (req, res) => {
 
 exports.getAllAuthor = async (req, res) => {
     try {
-        const authors = await AuthorModel.findAll()
+        const authors = await AuthorModel.findAll({
+            include: {
+                model: StoryModel,
+                as: 'stories',
+                attributes: []
+            },
+            attributes: {
+                include: [
+                    [sequelize.fn('count', sequelize.col('stories.id')), 'total_stories']
+                ]
+            },
+            group: ['author.id']
+        })
         return res.send({
             message: 'Get semua author berhasil',
             authors
