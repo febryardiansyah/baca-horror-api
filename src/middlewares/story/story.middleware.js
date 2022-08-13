@@ -25,20 +25,15 @@ exports.createStoryMiddleWare = async (req, res, next) => {
             message: 'Url tidak boleh kosong'
         })
     }
-    if (!author_id) {
-        return res.status(400).send({
-            message: 'Author Id tidak boleh kosong'
-        })
-    }
     try {
         // check author is exist
         // if it false, it will return failure response
-        const authorExist = await AuthorModel.findByPk(author_id)
-        if (!authorExist) {
-            return res.status(400).send({
-                message: `Author tidak ditemukan, pastikan memasukan id benar`
-            })
-        }
+        // const authorExist = await AuthorModel.findByPk(author_id)
+        // if (!authorExist) {
+        //     return res.status(400).send({
+        //         message: `Author tidak ditemukan, pastikan memasukan id benar`
+        //     })
+        // }
         // check story is exist
         const storyExist = await StoryModel.findOne({
             where: {

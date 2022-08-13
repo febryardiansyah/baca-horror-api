@@ -17,8 +17,8 @@ exports.createAuthor = async (req, res) => {
     try {
         const response = await axios.get(url)
         const $ = cheerio.load(response.data)
-        const name = $('body > div:nth-child(7) > div:nth-child(2) > div:nth-child(1) > h1').text().split(' ')[2]
-        const img = $('body > div.container.narrow.pb-5 > div > div > div.mb-2.d-flex.align-items-center > div:nth-child(1) > img').attr('src')
+        const name = $('body > div:nth-child(6) > div > div:nth-child(2) > div > div.align-self-start.align-self-md-center > div.username > a').attr('href').replace('/user/', '@')
+        const img = $('body > div:nth-child(6) > div > div.avatar.align-self-center > img').attr('src')
         const twitter_url = `https://twitter.com/${name.replace('@', '')}`
         const authorExist = await AuthorModel.findOne({
             where: {
@@ -74,7 +74,7 @@ exports.getAllAuthor = async (req, res) => {
  * STORY
  */
 exports.createStory = async (req, res) => {
-    const { title, url, author_id } = req.body;
+    const { title, url } = req.body;
     try {
         const response = await axios.get(url)
         const $ = cheerio.load(response.data)
@@ -89,8 +89,27 @@ exports.createStory = async (req, res) => {
                 )
             }
         })
+        const authorName = $('body > div.container.narrow.pb-5 > div > div > div.mb-2.d-flex.align-items-center > div.flex-grow-1 > div > h4 > a').attr('href').replace('/user/', '@')
+        const authorExist = await AuthorModel.findOne({
+            where: {
+                name: authorName,
+            }
+        })
+        let authorId
+        if (!authorExist) {
+            const img = $('body > div.container.narrow.pb-5 > div > div > div.mb-2.d-flex.align-items-center > div:nth-child(1) > img').attr('src')
+            const twitter_url = `https://twitter.com/${authorName.replace('@', '')}`
+            const author = await AuthorModel.create({
+                name: authorName,
+                img,
+                twitter_url,
+            })
+            authorId = author.id
+        } else {
+            authorId = authorExist.id
+        }
         const story = await StoryModel.create({
-            title, url, author_id, img, synopsis, source, contents,
+            title, url, author_id: authorId, img, synopsis, source, contents,
         })
 
         return res.send({
