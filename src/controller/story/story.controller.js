@@ -153,6 +153,43 @@ exports.getAllStory = async (req, res) => {
     }
 }
 
+exports.editStory = async (req, res) => {
+    const { id } = req.params
+    const { title, img } = req.body
+    if (!id) {
+        return res.status(400).send({
+            message: 'Id tidak boleh kosong'
+        })
+    }
+    if (!title) {
+        return res.status(400).send({
+            message: 'Title tidak boleh kosong'
+        })
+    }
+    if (!img) {
+        return res.status(400).send({
+            message: 'Gambar tidak boleh kosong'
+        })
+    }
+    try {
+        const story = await StoryModel.findByPk(id)
+        if (!story) {
+            return res.status(404).send({
+                message: 'Cerita tidak ditemukan'
+            })
+        }
+        await story.update({
+            title, img
+        })
+        return res.send({
+            message: 'Update Story by id success',
+            story
+        })
+    } catch (error) {
+        errorResponse(error)
+    }
+}
+
 // TODO: added total_views
 exports.getStoryById = async (req, res) => {
     const { id } = req.params;

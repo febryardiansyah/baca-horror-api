@@ -13,6 +13,7 @@ router.get('/author/all', storyController.getAllAuthor)
 // story
 router.post('/story/create', [createStoryMiddleWare], storyController.createStory)
 router.get('/story/all', storyController.getAllStory)
+router.put('/story/edit/:id', storyController.editStory)
 router.get('/story/:id', storyController.getStoryById)
 router.get('/story/contents/:id', [requireToken], storyController.getStoryContents)
 router.delete('/story/delete/:id', [requireToken], storyController.deleteStoryById)
