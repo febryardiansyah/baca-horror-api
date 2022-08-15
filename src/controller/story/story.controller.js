@@ -303,3 +303,21 @@ exports.deleteStoryById = async (req, res) => {
         errorResponse(res, error)
     }
 }
+
+exports.getMostViewStory = async (req, res) => {
+    try {
+        const records = await StoryModel.findAll({
+            limit: 10,
+            include: ['author'],
+            order: [
+                ['total_views', 'DESC']
+            ]
+        })
+        return res.send({
+            message: 'Get cerita paling banyak dilihat',
+            records,
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}

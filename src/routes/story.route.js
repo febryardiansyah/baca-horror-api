@@ -17,6 +17,7 @@ router.put('/story/edit/:id', storyController.editStory)
 router.get('/story/:id', storyController.getStoryById)
 router.get('/story/contents/:id', [requireToken], storyController.getStoryContents)
 router.delete('/story/delete/:id', [requireToken], storyController.deleteStoryById)
+router.get('/story/most-view/all', storyController.getMostViewStory)
 
 // like
 router.post('/story/like', [requireToken], likeController.likeStory)
