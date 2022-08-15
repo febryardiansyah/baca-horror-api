@@ -1,7 +1,6 @@
-const { StoryModel, AuthorModel, UserModel } = require("../../database/model/model")
+const { StoryModel } = require("../../database/model/model")
 const { errorResponse } = require("../../utils/error_response")
-const jwt = require('jsonwebtoken')
-const config = require("../../config/config")
+const { checkHeaderAuthorization, checkUserByToken } = require("../../utils/utils")
 
 exports.createAuthorMiddleware = async (req, res, next) => {
     const { url } = req.body
@@ -25,20 +24,15 @@ exports.createStoryMiddleWare = async (req, res, next) => {
             message: 'Url tidak boleh kosong'
         })
     }
-    if (!author_id) {
-        return res.status(400).send({
-            message: 'Author Id tidak boleh kosong'
-        })
-    }
     try {
         // check author is exist
         // if it false, it will return failure response
-        const authorExist = await AuthorModel.findByPk(author_id)
-        if (!authorExist) {
-            return res.status(400).send({
-                message: `Author tidak ditemukan, pastikan memasukan id benar`
-            })
-        }
+        // const authorExist = await AuthorModel.findByPk(author_id)
+        // if (!authorExist) {
+        //     return res.status(400).send({
+        //         message: `Author tidak ditemukan, pastikan memasukan id benar`
+        //     })
+        // }
         // check story is exist
         const storyExist = await StoryModel.findOne({
             where: {
@@ -57,16 +51,14 @@ exports.createStoryMiddleWare = async (req, res, next) => {
 }
 
 exports.requireToken = async (req, res, next) => {
-    const { authorization } = req.headers;
+    const authorization = checkHeaderAuthorization(req);
     if (!authorization) {
         return res.status(401).send({
             message: 'Kamu harus login terlebih dahulu'
         })
     }
-    const token = authorization.split('Bearer ')[1]
     try {
-        const parseToken = jwt.verify(token, config.SERVER.secret)
-        const user = await UserModel.findByPk(parseToken.id)
+        const user = await checkUserByToken(authorization)
         if (!user) {
             return res.status(401).send({
                 message: 'Kamu harus login terlebih dahulu'

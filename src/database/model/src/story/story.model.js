@@ -25,6 +25,10 @@ const StoryModel = db.define('story',{
     contents: {
         type: DataTypes.JSON,
         allowNull: false
+    },
+    total_views: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
     }
 },{
     createdAt: 'created_at',

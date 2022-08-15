@@ -82,7 +82,7 @@ exports.getMyLikedStory = async (req, res) => {
         const { stories_like } = user;
         return res.send({
             message: 'Get semua cerita yang disukai berhasil',
-            stories_like,
+            records: stories_like,
         })
     } catch (error) {
         errorResponse(res, error)
@@ -116,7 +116,7 @@ exports.getMostLikedStory = async (req, res) => {
 
         return res.send({
             message: 'Get cerita yang paling disukai',
-            stories
+            records: stories
         })
     } catch (error) {
         errorResponse(res, error)
