@@ -51,7 +51,7 @@ exports.createStoryMiddleWare = async (req, res, next) => {
 }
 
 exports.requireToken = async (req, res, next) => {
-    const authorization = checkHeaderAuthorization();
+    const authorization = checkHeaderAuthorization(req);
     if (!authorization) {
         return res.status(401).send({
             message: 'Kamu harus login terlebih dahulu'

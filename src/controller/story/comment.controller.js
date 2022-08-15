@@ -111,7 +111,7 @@ exports.getAllReportedComments = async(req,res) => {
 
         return res.send({
             message: 'Get all reported comments success',
-            reports
+            records: reports
         })
     } catch (error) {
         errorResponse(res,error)

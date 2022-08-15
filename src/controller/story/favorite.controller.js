@@ -2,7 +2,6 @@ const sequelize = require("sequelize")
 const { StoryModel, UserModel } = require("../../database/model/model")
 const FavoriteModel = require("../../database/model/src/story/favorite.model")
 const { errorResponse } = require("../../utils/error_response")
-const { parseJSON } = require("../../utils/utils")
 
 exports.favoriteStory = async (req, res) => {
     const { storyId } = req.body
@@ -72,7 +71,7 @@ exports.getMostFavorite = async (req, res) => {
 
         return res.send({
             message: 'Get cerita yang paling favorite',
-            stories
+            records: stories
         })
     } catch (error) {
         errorResponse(res, error)
@@ -99,7 +98,7 @@ exports.getMyFavorite = async (req, res) => {
         const { stories_favorite } = user;
         return res.send({
             message: 'Get semua cerita favorite berhasil',
-            stories_favorite,
+            records: stories_favorite,
         })
     } catch (error) {
         errorResponse(res, error)

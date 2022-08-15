@@ -10,11 +10,11 @@ exports.offsetPagination = (page, limit) => {
 }
 
 exports.getPaginationData = (data, current_page = 1, limit = 10) => {
-    const { count: total_items, rows: list } = data;
+    const { count: total_items, rows: records } = data;
     const total_pages = Math.ceil(total_items / limit)
     current_page = Number(current_page)
 
-    return { current_page, total_pages, total_items, list }
+    return { current_page, total_pages, total_items, records }
 }
 
 exports.parseJSON = (val) => JSON.parse(JSON.stringify(val))

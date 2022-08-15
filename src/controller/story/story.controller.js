@@ -63,7 +63,7 @@ exports.getAllAuthor = async (req, res) => {
         })
         return res.send({
             message: 'Get semua author berhasil',
-            authors
+            records: authors
         })
     } catch (error) {
         errorResponse(res, error)
@@ -247,7 +247,7 @@ exports.getStoryById = async (req, res) => {
         delete story.users_favorite
         return res.send({
             message: 'Get Story by id',
-            story,
+            data: story,
         })
     } catch (error) {
         errorResponse(res, error)
@@ -284,7 +284,7 @@ exports.getStoryContents = async (req, res) => {
         delete story.users_like
         return res.send({
             message: 'Get konten cerita berhasil',
-            story
+            data: story
         })
     } catch (error) {
         errorResponse(res, error)
