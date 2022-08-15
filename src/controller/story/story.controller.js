@@ -91,7 +91,7 @@ exports.getStoryByAuthor = async (req, res) => {
     const { id } = req.params
     const { page, limit, } = req.query
     try {
-        const getOffset = offsetPagination(page,limit)
+        const getOffset = offsetPagination(page, limit)
         let stories = await StoryModel.findAndCountAll({
             limit: getOffset.limit,
             offset: getOffset.offset,
@@ -99,10 +99,10 @@ exports.getStoryByAuthor = async (req, res) => {
                 author_id: id
             },
             order: [
-                ['created_at','DESC']
+                ['created_at', 'DESC']
             ]
         })
-        stories = getPaginationData(stories,page,limit)
+        stories = getPaginationData(stories, page, limit)
 
         return res.send({
             message: 'Get cerita by author',
@@ -152,7 +152,7 @@ exports.createStory = async (req, res) => {
             authorId = authorExist.id
         }
         const story = await StoryModel.create({
-            title, url, author_id: authorId, img, synopsis, source, contents,
+            title, url, author_id: authorId, img, synopsis, source, contents, total_views: 0,
         })
 
         return res.send({

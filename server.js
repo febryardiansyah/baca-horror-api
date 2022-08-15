@@ -4,6 +4,7 @@ const cors = require('cors')
 const db = require('./src/database/database')
 const userRoutes = require('./src/routes/user.route')
 const storyRoutes = require('./src/routes/story.route')
+const config = require('./src/config/config')
 
 const PORT = process.env.PORT || 3000
 
@@ -27,5 +28,5 @@ app.use('*',(req,res)=>{
 })
 
 app.listen(PORT,()=>{
-    console.log(`Server listening on ${PORT}`);
+    console.log(`Server listening on port: ${PORT}, MODE: ${config.SERVER.mode}`);
 })
