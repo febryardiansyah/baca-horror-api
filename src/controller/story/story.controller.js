@@ -3,7 +3,7 @@ const { errorResponse } = require("../../utils/error_response")
 const cheerio = require('cheerio');
 const { default: axios } = require("axios");
 const { parseHTMLContent } = require("../../utils/string");
-const { offsetPagination, getPaginationData, } = require("../../utils/utils");
+const { offsetPagination, getPaginationData, checkHeaderAuthorization, checkUserByToken, } = require("../../utils/utils");
 const { Op } = require('sequelize');
 const sequelize = require("sequelize");
 const jwt = require('jsonwebtoken');
@@ -190,19 +190,17 @@ exports.editStory = async (req, res) => {
     }
 }
 
-// TODO: added total_views
 exports.getStoryById = async (req, res) => {
     const { id } = req.params;
-    const { authorization } = req.headers;
+    const authorization = checkHeaderAuthorization(req)
+    console.log(authorization);
 
     let userFavoriteWhere;
     // check if authorization not null
     if (!authorization) {
         userFavoriteWhere = null;
     } else {
-        const token = authorization.split('Bearer ')[1]
-        const parseToken = jwt.verify(token, config.SERVER.secret)
-        const user = await UserModel.findByPk(parseToken.id)
+        const user = await checkUserByToken(authorization)
         if (!user) {
             userFavoriteWhere = null;
         }
@@ -234,6 +232,14 @@ exports.getStoryById = async (req, res) => {
                     [sequelize.literal('(select count(*) from likes as ul where ul.storyId = Story.id)'), 'total_likes'],
                 ]
             },
+        })
+        if (!story) {
+            return res.status(404).send({
+                message: 'Cerita tidak ditemukan'
+            })
+        }
+        await story.update({
+            total_views: story.toJSON().total_views + 1
         })
         story = story.toJSON()
         story.isFavorite = userFavoriteWhere !== null && story.users_favorite.length > 0
