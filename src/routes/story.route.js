@@ -9,6 +9,8 @@ const { createAuthorMiddleware, createStoryMiddleWare, requireToken } = require(
 // author
 router.post('/author/create', [createAuthorMiddleware], storyController.createAuthor)
 router.get('/author/all', storyController.getAllAuthor)
+router.get('/author/:id', storyController.getAuthorById)
+router.get('/author/:id/stories', storyController.getStoryByAuthor)
 
 // story
 router.post('/story/create', [createStoryMiddleWare], storyController.createStory)
