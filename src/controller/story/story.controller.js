@@ -6,8 +6,6 @@ const { parseHTMLContent } = require("../../utils/string");
 const { offsetPagination, getPaginationData, checkHeaderAuthorization, checkUserByToken, } = require("../../utils/utils");
 const { Op } = require('sequelize');
 const sequelize = require("sequelize");
-const jwt = require('jsonwebtoken');
-const config = require("../../config/config");
 
 /**
  * AUTHOR
@@ -67,6 +65,51 @@ exports.getAllAuthor = async (req, res) => {
         })
     } catch (error) {
         errorResponse(res, error)
+    }
+}
+
+exports.getAuthorById = async (req, res) => {
+    const { id } = req.params
+    try {
+        const author = await AuthorModel.findByPk(id)
+        if (!author) {
+            return res.status(404).send({
+                message: 'Author tidak ditemukan'
+            })
+        }
+
+        return res.send({
+            message: 'Get author by id success',
+            data: author
+        })
+    } catch (error) {
+        errorResponse(error)
+    }
+}
+
+exports.getStoryByAuthor = async (req, res) => {
+    const { id } = req.params
+    const { page, limit, } = req.query
+    try {
+        const getOffset = offsetPagination(page,limit)
+        let stories = await StoryModel.findAndCountAll({
+            limit: getOffset.limit,
+            offset: getOffset.offset,
+            where: {
+                author_id: id
+            },
+            order: [
+                ['created_at','DESC']
+            ]
+        })
+        stories = getPaginationData(stories,page,limit)
+
+        return res.send({
+            message: 'Get cerita by author',
+            ...stories
+        })
+    } catch (error) {
+        errorResponse(error)
     }
 }
 
