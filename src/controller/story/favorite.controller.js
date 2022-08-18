@@ -56,14 +56,21 @@ exports.getMostFavorite = async (req, res) => {
     try {
         let stories = await StoryModel.findAll({
             limit: 10,
+            subQuery: false,
             include: [
                 'author',
+                {
+                    model: UserModel,
+                    as: 'users_favorite',
+                }
             ],
             attributes: {
                 include: [
-                    [sequelize.literal('(select count(*) from favorites as fav where fav.storyId = Story.id)'), 'total_favorites'],
+                    // [sequelize.literal('(select count(*) from favorites as fav where fav.storyId = Story.id)'), 'total_favorites'],
+                    [sequelize.fn('COUNT', sequelize.col('users_favorite.id')), 'total_favorites']
                 ]
             },
+            group: ['id'],
             order: [
                 [sequelize.literal('total_favorites'), 'DESC'],
             ]

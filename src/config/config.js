@@ -15,7 +15,7 @@ module.exports = {
         password: dev ? process.env.DB_PASSWORD : process.env.DB_PASSWORD_PROD,
         name: dev ? process.env.DB_NAME : process.env.DB_NAME_PROD,
         dialect: 'mysql',
-        port: dev? process.env.DB_PORT: process.env.DB_PORT_PROD
+        port: dev ? process.env.DB_PORT : process.env.DB_PORT_PROD
     },
     ROLE: {
         admin: 'ADMIN',

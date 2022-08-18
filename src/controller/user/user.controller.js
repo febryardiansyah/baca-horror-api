@@ -1,4 +1,4 @@
-const { UserModel } = require("../../database/model/model");
+const { UserModel, StoryModel } = require("../../database/model/model");
 const { errorResponse } = require("../../utils/error_response");
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
@@ -19,7 +19,7 @@ exports.createUser = async (req, res) => {
 
         return res.send({
             message: 'Buat akun berhasil!',
-            user
+            data: user
         })
     } catch (error) {
         errorResponse(res, error)
@@ -55,7 +55,7 @@ exports.login = async (req, res) => {
         res.send({
             message: 'Login berhasil!',
             token,
-            user
+            data: user
         })
     } catch (error) {
         console.log(error);
@@ -66,16 +66,24 @@ exports.login = async (req, res) => {
 exports.getMyProfile = async (req, res) => {
     try {
         const user = await UserModel.findByPk(req.userId, {
+            include: [
+                {
+                    model: StoryModel,
+                    as: 'stories_like',
+                    attributes: []
+                }
+            ],
             attributes: {
                 include: [
-                    [sequelize.literal('(select count(*) from likes as ul where ul.userId = User.id)'), 'stories_liked']
+                    // [sequelize.literal('(select count(*) from likes as ul where ul.userId = User.id)'), 'stories_liked']
+                    [sequelize.fn('COUNT',sequelize.col('stories_like.id')),'stories_liked']
                 ]
             },
         })
 
         return res.send({
             message: 'Get my profile berhasil',
-            user
+            data: user
         })
     } catch (error) {
         errorResponse(res, error)

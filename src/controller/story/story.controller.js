@@ -268,13 +268,20 @@ exports.getStoryById = async (req, res) => {
                     },
                     where: userFavoriteWhere,
                     required: false
+                },
+                {
+                    model: UserModel,
+                    as: 'users_like',
+                    // attributes: [],
                 }
             ],
             attributes: {
                 include: [
-                    [sequelize.literal('(select count(*) from likes as ul where ul.storyId = Story.id)'), 'total_likes'],
+                    // [sequelize.literal('(select count(*) from likes as ul where ul.storyId = Story.id)'), 'total_likes'],
+                    [sequelize.fn('COUNT', sequelize.col('users_like.id')), 'total_likes']
                 ]
             },
+            group: ['id']
         })
         if (!story) {
             return res.status(404).send({

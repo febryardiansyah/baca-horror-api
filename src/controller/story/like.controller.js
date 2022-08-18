@@ -93,6 +93,7 @@ exports.getMostLikedStory = async (req, res) => {
     try {
         const stories = await StoryModel.findAll({
             limit: 10,
+            subQuery: false,
             include: [
                 {
                     model: UserModel,
@@ -106,12 +107,14 @@ exports.getMostLikedStory = async (req, res) => {
             ],
             attributes: {
                 include: [
-                    [sequelize.literal('(select count(*) from likes as ul where ul.storyId = Story.id)'), 'total_likes']
+                    // [sequelize.literal('(select count(*) from likes as ul where ul.storyId = Story.id)'), 'total_likes']
+                    [sequelize.fn('COUNT', sequelize.col('users_like.id')), 'total_likes']
                 ]
             },
+            group: ['id'],
             order: [
                 [sequelize.literal('total_likes'), 'DESC'],
-            ]
+            ],
         })
 
         return res.send({

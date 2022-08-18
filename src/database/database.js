@@ -4,7 +4,8 @@ const config = require('../config/config')
 const db = new Sequelize(config.DB.name, config.DB.user, config.DB.password, {
     host: config.DB.host,
     dialect: config.DB.dialect,
-    port: 25060,
+    logging: false,
+    port: config.DB.port,
     pool: {
         max: 5,
         min: 0,
