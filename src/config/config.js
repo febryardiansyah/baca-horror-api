@@ -20,5 +20,9 @@ module.exports = {
     ROLE: {
         admin: 'ADMIN',
         user: 'USER'
+    },
+    EMAIL: {
+        username: process.env.MAIL_USERNAME,
+        password: process.env.MAIL_PASSWORD,
     }
 }

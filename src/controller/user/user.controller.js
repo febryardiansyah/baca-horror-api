@@ -16,9 +16,8 @@ exports.createUser = async (req, res) => {
         })
         // remove password from object
         user.password = undefined
-
         return res.send({
-            message: 'Buat akun berhasil!',
+            message: 'Registrasi berhasil! Silakan cek email kamu.',
             data: user
         })
     } catch (error) {
@@ -76,7 +75,7 @@ exports.getMyProfile = async (req, res) => {
             attributes: {
                 include: [
                     // [sequelize.literal('(select count(*) from likes as ul where ul.userId = User.id)'), 'stories_liked']
-                    [sequelize.fn('COUNT',sequelize.col('stories_like.id')),'stories_liked']
+                    [sequelize.fn('COUNT', sequelize.col('stories_like.id')), 'stories_liked']
                 ]
             },
         })
@@ -100,7 +99,7 @@ exports.updateProfile = async (req, res) => {
     try {
         await UserModel.update({
             name
-        },{
+        }, {
             where: {
                 id: req.userId
             }

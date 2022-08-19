@@ -32,3 +32,9 @@ exports.checkUserByToken = async (authorization) => {
 
     return user;
 }
+
+exports.getRandomNumber = () => {
+    const randoms = [...Array(6)].map(()=> Math.floor(Math.random() * 9))
+
+    return randoms.toString().split(',').join('')
+}

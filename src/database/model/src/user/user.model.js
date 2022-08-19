@@ -22,6 +22,14 @@ const UserModel = db.define('user',{
     img: {
         type: DataTypes.STRING,
         allowNull: false,
+    },
+    email_verified:{
+        type: DataTypes.TINYINT,
+        allowNull: false
+    },
+    email_verification_code: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     }
 },{
     scopes: {
