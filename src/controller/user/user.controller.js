@@ -115,6 +115,80 @@ exports.verifyEmail = async (req, res) => {
     }
 }
 
+exports.forgotPassword = async (req, res) => {
+    const { email } = req.body
+    if (!email) {
+        return res.status(400).send({
+            message: 'Email tidak boleh kosong'
+        })
+    }
+    try {
+        const user = await UserModel.findOne({
+            where: {
+                email
+            },
+        })
+        if (!user) {
+            return res.status(404).send({
+                message: 'Email belum terdaftar'
+            })
+        }
+        const name = user.toJSON().name
+        const emailer = BaseServices.emailVerification(name, email, 'Lupa Password')
+        await user.update({
+            email_verification_code: emailer.code
+        })
+        return res.send({
+            message: 'Kode berhasil dikirim, silakan cek email kamu'
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}
+
+exports.resetPassword = async (req, res) => {
+    const { email, code, password } = req.body
+    if (!code) {
+        return res.status(400).send({ message: 'Kode tidak boleh kosong!' })
+    }
+    if (!email) {
+        return res.status(400).send({ message: 'Email tidak boleh kosong!' })
+    }
+    if (!password) {
+        return res.status(400).send({ message: 'Password tidak boleh kosong!' })
+    }
+    try {
+        const user = await UserModel.scope('with_password').findOne({
+            where: {
+                email
+            }
+        })
+
+        if (!user) {
+            return res.status(404).send({
+                message: 'Email belum terdaftar'
+            })
+        }
+
+        const isCodeValid = await BaseServices.validateEmailVerificationCode(email, code)
+        if (!isCodeValid) {
+            return res.status(401).send({
+                message: 'Kode yang kamu masukan tidak benar'
+            })
+        }
+        const hashedPassword = bcrypt.hashSync(password, 8)
+        await user.update({
+            password: hashedPassword,
+        })
+
+        return res.send({
+            message: 'Reset password berhasil, silakan login kembali!'
+        })
+    } catch (error) {
+        errorResponse(res, error)
+    }
+}
+
 exports.getMyProfile = async (req, res) => {
     try {
         const user = await UserModel.findByPk(req.userId, {
