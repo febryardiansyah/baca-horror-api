@@ -1,5 +1,5 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/febryard/repositories/baca-horror-api
+    - export DEPLOYPATH=/home/febryard/public_html/
     - /bin/cp -R * $DEPLOYPATH
