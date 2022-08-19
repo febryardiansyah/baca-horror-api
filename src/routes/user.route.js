@@ -6,6 +6,7 @@ const { loginFormMiddleWare } = require('../middlewares/user/user.middleware')
 
 router.post('/register', userController.createUser)
 router.post('/login', [loginFormMiddleWare], userController.login)
+router.post('/verify-email', userController.verifyEmail)
 
 router.get('/me', [requireToken], userController.getMyProfile)
 router.put('/me/edit', [requireToken], userController.updateProfile)

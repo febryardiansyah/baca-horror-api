@@ -16,7 +16,7 @@ const sendEmail = async (data) => {
         const info = await transporter.sendMail({
             from: `"Febry Ardiansyah" <${config.EMAIL.username}>`, // sender address
             to: `febrymuhammad80@gmail.com`,
-            subject: "Verifikasi email",
+            subject: data.subject,
             html: emailVerificationTemplate(data),
         })
         console.log(info.messageId);

@@ -25,7 +25,8 @@ const UserModel = db.define('user',{
     },
     email_verified:{
         type: DataTypes.TINYINT,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 0
     },
     email_verification_code: {
         type: DataTypes.INTEGER,
