@@ -22,9 +22,17 @@ const UserModel = db.define('user',{
     img: {
         type: DataTypes.STRING,
         allowNull: false,
+    },
+    email_verified:{
+        type: DataTypes.TINYINT,
+        allowNull: false,
+        defaultValue: 0
+    },
+    email_verification_code: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     }
 },{
-    timestamps: true,
     scopes: {
         with_password: {
             attributes: {
@@ -38,7 +46,10 @@ const UserModel = db.define('user',{
         }
     },
     createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    updatedAt: 'updated_at',
+    // deletedAt: 'deleted_at',
+    // timestamps: true,
+    // paranoid: true,
 });
 
 module.exports = UserModel;

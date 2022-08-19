@@ -25,10 +25,29 @@ const StoryModel = db.define('story',{
     contents: {
         type: DataTypes.JSON,
         allowNull: false
+    },
+    total_views: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
     }
 },{
     createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    updatedAt: 'updated_at',
+    // deletedAt: 'deleted_at',
+    // timestamps: true,
+    // paranoid: true,
+    defaultScope:{
+        attributes: {
+            exclude: ['contents']
+        }
+    },
+    scopes: {
+        with_contents: {
+            attributes:{
+                include: ['contents']
+            }
+        }
+    }
 })
 
 module.exports = StoryModel;
