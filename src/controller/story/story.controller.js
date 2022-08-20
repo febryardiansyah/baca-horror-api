@@ -1,4 +1,4 @@
-const { AuthorModel, StoryModel, UserModel } = require("../../database/model/model");
+const { AuthorModel, StoryModel, UserModel, CommentModel, } = require("../../database/model/model");
 const { errorResponse } = require("../../utils/error_response")
 const cheerio = require('cheerio');
 const { default: axios } = require("axios");
@@ -6,6 +6,8 @@ const { parseHTMLContent } = require("../../utils/string");
 const { offsetPagination, getPaginationData, checkHeaderAuthorization, checkUserByToken, } = require("../../utils/utils");
 const { Op } = require('sequelize');
 const sequelize = require("sequelize");
+const LikeModel = require("../../database/model/src/story/like.model");
+const HistoryModel = require("../../database/model/src/story/history.model");
 
 /**
  * AUTHOR
@@ -236,23 +238,31 @@ exports.editStory = async (req, res) => {
 exports.getStoryById = async (req, res) => {
     const { id } = req.params;
     const authorization = checkHeaderAuthorization(req)
-    console.log(authorization);
 
-    let userFavoriteWhere;
-    // check if authorization not null
-    if (!authorization) {
-        userFavoriteWhere = null;
-    } else {
-        const user = await checkUserByToken(authorization)
-        if (!user) {
-            userFavoriteWhere = null;
-        }
-        /// return user.id
-        userFavoriteWhere = {
-            id: user.id
-        }
-    }
     try {
+        let userFavoriteWhere;
+        let isLiked = false
+        // check if authorization not null
+        if (!authorization) {
+            userFavoriteWhere = null;
+        } else {
+            const user = await checkUserByToken(authorization)
+            if (!user) {
+                userFavoriteWhere = null;
+            }
+            const likes = await LikeModel.findOne({
+                where: {
+                    userId: user.id,
+                    storyId: id
+                }
+            })
+            isLiked = likes !== null
+            /// return user.id
+            userFavoriteWhere = {
+                id: user.id
+            }
+        }
+
         let story = await StoryModel.findByPk(id, {
             include: [
                 {
@@ -272,7 +282,7 @@ exports.getStoryById = async (req, res) => {
                 {
                     model: UserModel,
                     as: 'users_like',
-                    // attributes: [],
+                    attributes: [],
                 }
             ],
             attributes: {
@@ -288,10 +298,18 @@ exports.getStoryById = async (req, res) => {
                 message: 'Cerita tidak ditemukan'
             })
         }
+        const comments = await CommentModel.findAll({
+            where: {
+                storyId: id
+            }
+        })
+
         await story.update({
             total_views: story.toJSON().total_views + 1
         })
         story = story.toJSON()
+        story.isLiked = isLiked
+        story.total_commments = comments.length
         story.isFavorite = userFavoriteWhere !== null && story.users_favorite.length > 0
 
         delete story.users_favorite
@@ -306,6 +324,7 @@ exports.getStoryById = async (req, res) => {
 
 exports.getStoryContents = async (req, res) => {
     const { id } = req.params
+    const userId = req.userId
     try {
         let story = await StoryModel.scope('with_contents').findByPk(id, {
             include: [
@@ -318,18 +337,37 @@ exports.getStoryContents = async (req, res) => {
                         attributes: []
                     },
                     where: {
-                        id: req.userId
+                        id: userId
                     },
                     required: false,
                 },
             ],
-            attributes: {
-                include: [
-                    [sequelize.literal('(select count(*) from likes as ul where ul.storyId = Story.id)'), 'total_likes'],
-                ]
-            },
+            // attributes: {
+            //     include: [
+            //         [sequelize.literal('(select count(*) from likes as ul where ul.storyId = Story.id)'), 'total_likes'],
+            //         [sequelize.fn('COUNT',sequelize.col('users_like.id')),'total_likes']
+            //     ]
+            // },
         })
+
+        // find all like where storyid
+        const likes = await LikeModel.findAll({ where: { storyId: id } })
+        
+        const history = await HistoryModel.findOne({
+            where: {
+                userId,
+                storyId: id
+            }
+        })
+        if (!history) {
+            await HistoryModel.create({ userId, storyId: id })
+        } else {
+            await history.destroy()
+            await HistoryModel.create({ userId, storyId: id })
+        }
+
         story = story.toJSON()
+        story.total_likes = likes.length
         story.isLiked = story.users_like.length > 0
         delete story.users_like
         return res.send({

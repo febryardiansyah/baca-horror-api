@@ -1,10 +1,11 @@
-const { UserModel, StoryModel } = require("../../database/model/model");
+const { UserModel, StoryModel, LastStoryModel } = require("../../database/model/model");
 const { errorResponse } = require("../../utils/error_response");
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const config = require("../../config/config");
 const sequelize = require("sequelize");
 const BaseServices = require("../../services/BaseServices");
+const { checkHeaderAuthorization } = require("../../utils/utils");
 
 exports.createUser = async (req, res) => {
     const { name, email, password, role, } = req.body;
@@ -238,5 +239,28 @@ exports.updateProfile = async (req, res) => {
         })
     } catch (error) {
         errorResponse(res, error)
+    }
+}
+
+exports.getLastStory = async (req, res) => {
+    const userId = req.userId
+    try {
+        const data = await UserModel.findOne({
+            where: {
+                id: userId
+            },
+            include: [
+                {
+                    model: StoryModel,
+                    as: 'stories_history'
+                }
+            ]
+        })
+        return res.send({
+            message: 'Get last story success',
+            data
+        })
+    } catch (error) {
+        errorResponse(res,error)
     }
 }

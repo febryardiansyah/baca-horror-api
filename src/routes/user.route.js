@@ -12,6 +12,7 @@ router.post('/reset-password', userController.resetPassword)
 
 router.get('/me', [requireToken], userController.getMyProfile)
 router.put('/me/edit', [requireToken], userController.updateProfile)
+router.get('/me/last-story', [requireToken], userController.getLastStory)
 
 userRoutes.use('/api/user', router)
 
