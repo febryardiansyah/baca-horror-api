@@ -22,6 +22,7 @@ StoryModel.belongsToMany(UserModel, {
         model: CommentModel, unique: false,
     }, foreignKey: 'storyId'
 })
+// StoryModel.belongsTo(UserModel, { as: 'user', foreignKey: 'userId' })
 
 /**
  * USER
@@ -33,6 +34,7 @@ UserModel.belongsToMany(StoryModel, {
         model: CommentModel, unique: false,
     }, foreignKey: 'userId'
 })
+// UserModel.hasMany(StoryModel, { as: 'story', foreignKey: 'userId', })
 
 CommentModel.belongsTo(StoryModel, { as: 'story' })
 CommentModel.belongsTo(UserModel, { as: 'user' })
