@@ -1,4 +1,4 @@
-const { AuthorModel, StoryModel, UserModel } = require("../../database/model/model");
+const { AuthorModel, StoryModel, UserModel, CommentModel } = require("../../database/model/model");
 const { errorResponse } = require("../../utils/error_response")
 const cheerio = require('cheerio');
 const { default: axios } = require("axios");
@@ -272,7 +272,7 @@ exports.getStoryById = async (req, res) => {
                 {
                     model: UserModel,
                     as: 'users_like',
-                    // attributes: [],
+                    attributes: [],
                 }
             ],
             attributes: {
@@ -288,10 +288,16 @@ exports.getStoryById = async (req, res) => {
                 message: 'Cerita tidak ditemukan'
             })
         }
+        const comments = await CommentModel.findAll({
+            where: {
+                storyId: id
+            }
+        })
         await story.update({
             total_views: story.toJSON().total_views + 1
         })
         story = story.toJSON()
+        story.total_commments = comments.length
         story.isFavorite = userFavoriteWhere !== null && story.users_favorite.length > 0
 
         delete story.users_favorite
