@@ -1,6 +1,7 @@
 const AuthorModel = require("./src/story/author.model");
 const CommentModel = require("./src/story/comment.model");
 const FavoriteModel = require("./src/story/favorite.model");
+const HistoryModel = require("./src/story/history.model");
 const LikeModel = require("./src/story/like.model");
 const ReportedComment = require("./src/story/reportedComment.model");
 const StoryModel = require("./src/story/story.model");
@@ -22,7 +23,7 @@ StoryModel.belongsToMany(UserModel, {
         model: CommentModel, unique: false,
     }, foreignKey: 'storyId'
 })
-// StoryModel.belongsTo(UserModel, { as: 'user', foreignKey: 'userId' })
+StoryModel.belongsToMany(UserModel, { as: 'users_history', through: HistoryModel })
 
 /**
  * USER
@@ -34,7 +35,7 @@ UserModel.belongsToMany(StoryModel, {
         model: CommentModel, unique: false,
     }, foreignKey: 'userId'
 })
-// UserModel.hasMany(StoryModel, { as: 'story', foreignKey: 'userId', })
+UserModel.belongsToMany(StoryModel, { as: 'stories_history', through: HistoryModel })
 
 CommentModel.belongsTo(StoryModel, { as: 'story' })
 CommentModel.belongsTo(UserModel, { as: 'user' })

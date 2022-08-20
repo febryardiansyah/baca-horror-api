@@ -7,6 +7,7 @@ const { offsetPagination, getPaginationData, checkHeaderAuthorization, checkUser
 const { Op } = require('sequelize');
 const sequelize = require("sequelize");
 const LikeModel = require("../../database/model/src/story/like.model");
+const HistoryModel = require("../../database/model/src/story/history.model");
 
 /**
  * AUTHOR
@@ -336,7 +337,7 @@ exports.getStoryContents = async (req, res) => {
                         attributes: []
                     },
                     where: {
-                        id: req.userId
+                        id: userId
                     },
                     required: false,
                 },
@@ -349,7 +350,21 @@ exports.getStoryContents = async (req, res) => {
             // },
         })
 
+        // find all like where storyid
         const likes = await LikeModel.findAll({ where: { storyId: id } })
+        
+        const history = await HistoryModel.findOne({
+            where: {
+                userId,
+                storyId: id
+            }
+        })
+        if (!history) {
+            await HistoryModel.create({ userId, storyId: id })
+        } else {
+            await history.destroy()
+            await HistoryModel.create({ userId, storyId: id })
+        }
 
         story = story.toJSON()
         story.total_likes = likes.length

@@ -245,11 +245,21 @@ exports.updateProfile = async (req, res) => {
 exports.getLastStory = async (req, res) => {
     const userId = req.userId
     try {
-        // const data = await LastStoryModel.findOne({ where: { userId },include: ['stories'] },)
-        // return res.send({
-        //     message: 'Get last story success',
-        //     data
-        // })
+        const data = await UserModel.findOne({
+            where: {
+                id: userId
+            },
+            include: [
+                {
+                    model: StoryModel,
+                    as: 'stories_history'
+                }
+            ]
+        })
+        return res.send({
+            message: 'Get last story success',
+            data
+        })
     } catch (error) {
         errorResponse(res,error)
     }
