@@ -291,7 +291,7 @@ exports.getStoryById = async (req, res) => {
                     [sequelize.fn('COUNT', sequelize.col('users_like.id')), 'total_likes']
                 ]
             },
-            group: ['id']
+            // group: ['users_like.id']
         })
         if (!story) {
             return res.status(404).send({
