@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 const MODE = process.env.SERVER_MODE
-const dev = MODE === 'DEV'
+const isModeDev = MODE === 'DEV'
 
 module.exports = {
     SERVER: {
@@ -10,12 +10,12 @@ module.exports = {
         mode: MODE,
     },
     DB: {
-        host: dev ? process.env.DB_HOST : process.env.DB_HOST_PROD,
-        user: dev ? process.env.DB_USER : process.env.DB_USER_PROD,
-        password: dev ? process.env.DB_PASSWORD : process.env.DB_PASSWORD_PROD,
-        name: dev ? process.env.DB_NAME : process.env.DB_NAME_PROD,
+        host: isModeDev ? process.env.DB_HOST : process.env.DB_HOST_PROD,
+        user: isModeDev ? process.env.DB_USER : process.env.DB_USER_PROD,
+        password: isModeDev ? process.env.DB_PASSWORD : process.env.DB_PASSWORD_PROD,
+        name: isModeDev ? process.env.DB_NAME : process.env.DB_NAME_PROD,
         dialect: 'mysql',
-        port: dev ? process.env.DB_PORT : process.env.DB_PORT_PROD
+        port: isModeDev ? process.env.DB_PORT : process.env.DB_PORT_PROD
     },
     ROLE: {
         admin: 'ADMIN',
